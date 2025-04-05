@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 import { nanoid } from "nanoid";
-import viteConfig from "../vite.config.js";
+import viteConfig from "../vite.config.js"; // Note: We still reference the js file for ESM compatibility
 import { fileURLToPath } from 'url';
 
 const viteLogger = createLogger();

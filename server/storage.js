@@ -7,7 +7,7 @@ import {
   orders, insertOrderSchema,
   orderItems, insertOrderItemSchema,
   reviews, insertReviewSchema
-} from "@shared/schema.js";
+} from "../shared/schema.js";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 

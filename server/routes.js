@@ -6,7 +6,7 @@ import {
   insertCartItemSchema, 
   insertOrderSchema,
   insertReviewSchema
-} from "@shared/schema.js";
+} from "../shared/schema.js";
 
 /**
  * Register all routes for the Express app
