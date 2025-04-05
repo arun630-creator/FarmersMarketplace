@@ -56,7 +56,11 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-primary-dark to-primary relative overflow-hidden">
+      <section className="relative overflow-hidden" style={{ 
+        backgroundImage: "linear-gradient(to right, rgba(43, 108, 0, 0.9), rgba(74, 161, 9, 0.85)), url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80')", 
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
         <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
           <div className="max-w-xl">
             <h1 className="text-4xl md:text-5xl font-bold text-white font-heading mb-4">
@@ -66,7 +70,7 @@ export default function HomePage() {
               Directly support local farmers while enjoying the freshest produce delivered right to your doorstep.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button asChild size="lg" variant="secondary" className="bg-white text-primary-dark hover:bg-gray-100">
+              <Button asChild size="lg" variant="secondary" className="bg-white text-green-700 hover:bg-gray-100">
                 <Link href="/shop">Shop Now</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10">
@@ -76,7 +80,7 @@ export default function HomePage() {
           </div>
         </div>
         {/* Abstract farm pattern overlay */}
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-20">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-full h-full">
             <path d="M0 0h24v24H0z" fill="none"/>
             <path d="M12 22l-3.55-6.17L2 14.26l4.11-5.31L4 3h7l1-2 1 2h7l-2.11 5.95 4.11 5.31-6.45 1.57L12 22z"/>
@@ -238,13 +242,17 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-amber-700">
-        <div className="container mx-auto px-4">
+      <section className="py-16 relative overflow-hidden" style={{ 
+        backgroundImage: "linear-gradient(to right, rgba(43, 108, 0, 0.9), rgba(74, 161, 9, 0.85)), url('https://images.unsplash.com/photo-1595508064774-5ff825520bb5?q=80')", 
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">Ready to taste the difference?</h2>
             <p className="text-white/90 text-lg mb-8">Join thousands of happy customers supporting local agriculture while enjoying the freshest produce available.</p>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button asChild size="lg" className="bg-white text-amber-700 hover:bg-gray-100">
+              <Button asChild size="lg" className="bg-white text-green-700 hover:bg-gray-100">
                 <Link href="/shop">Shop Now</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10">
