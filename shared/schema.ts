@@ -1,130 +1,132 @@
-import { pgTable, text, serial, integer, boolean, timestamp, doublePrecision, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, doublePrecision, json, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table (for both farmers and customers)
+// User model - for both customers and farmers
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
-  fullName: text("full_name").notNull(),
-  role: text("role").notNull().default("customer"), // farmer or customer
-  phone: text("phone"),
+  name: text("name").notNull(),
+  role: text("role").notNull().default("customer"), // "customer" or "farmer"
   address: text("address"),
-  city: text("city"),
-  state: text("state"),
-  zipCode: text("zip_code"),
-  farmName: text("farm_name"), // for farmers only
-  farmDescription: text("farm_description"), // for farmers only
+  phone: text("phone"),
+  bio: text("bio"),
   profileImage: text("profile_image"),
-  createdAt: timestamp("created_at").defaultNow()
+  created: timestamp("created").defaultNow(),
 });
 
-// Product categories
+// Category model
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  slug: text("slug").notNull().unique(),
-  icon: text("icon").notNull(),
-  iconBgColor: text("icon_bg_color").notNull(),
-  iconTextColor: text("icon_text_color").notNull()
+  name: text("name").notNull(),
+  description: text("description"),
+  image: text("image"),
 });
 
-// Products
+// Product model
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: doublePrecision("price").notNull(),
-  unit: text("unit").notNull(), // lb, basket, dozen, etc.
-  imageUrl: text("image_url").notNull(),
+  unit: text("unit").notNull(), // e.g., "lb", "dozen", "jar"
+  image: text("image"),
   stock: integer("stock").notNull().default(0),
-  farmerId: integer("farmer_id").notNull(),
-  categoryId: integer("category_id").notNull(),
-  rating: doublePrecision("rating").default(0),
-  reviewCount: integer("review_count").default(0),
-  featured: boolean("featured").default(false),
-  createdAt: timestamp("created_at").defaultNow()
+  farmerId: integer("farmer_id").notNull(), // references user id
+  categoryId: integer("category_id").notNull(), // references category id
+  isOrganic: boolean("is_organic").default(false),
+  tags: text("tags").array(), // e.g., ["Organic", "Free Range", "Seasonal"]
+  created: timestamp("created").defaultNow(),
 });
 
-// Cart items
+// Cart model
+export const carts = pgTable("carts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(), // references user id
+  created: timestamp("created").defaultNow(),
+});
+
+// Cart Item model
 export const cartItems = pgTable("cart_items", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  productId: integer("product_id").notNull(),
+  cartId: integer("cart_id").notNull(), // references cart id
+  productId: integer("product_id").notNull(), // references product id
   quantity: integer("quantity").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
+  price: doublePrecision("price").notNull(), // store price at the time of adding to cart
 });
 
-// Orders
+// Order model
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  customerId: integer("customer_id").notNull(),
-  status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered, canceled
+  userId: integer("user_id").notNull(), // references user id
+  status: text("status").notNull().default("pending"), // "pending", "processing", "shipped", "delivered", "cancelled"
   total: doublePrecision("total").notNull(),
   address: text("address").notNull(),
-  city: text("city").notNull(),
-  state: text("state").notNull(),
-  zipCode: text("zip_code").notNull(),
-  paymentMethod: text("payment_method").notNull(),
-  createdAt: timestamp("created_at").defaultNow()
+  phone: text("phone").notNull(),
+  created: timestamp("created").defaultNow(),
 });
 
-// Order items
+// Order Item model
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull(),
-  productId: integer("product_id").notNull(),
-  farmerId: integer("farmer_id").notNull(),
+  orderId: integer("order_id").notNull(), // references order id
+  productId: integer("product_id").notNull(), // references product id
+  farmerId: integer("farmer_id").notNull(), // references user id
   quantity: integer("quantity").notNull(),
-  price: doublePrecision("price").notNull(),
-  status: text("status").notNull().default("pending") // pending, processing, shipped, delivered, canceled
+  price: doublePrecision("price").notNull(), // store price at the time of ordering
 });
 
-// Reviews
+// Review model
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  productId: integer("product_id").notNull(),
+  userId: integer("user_id").notNull(), // references user id
+  productId: integer("product_id").notNull(), // references product id
   rating: integer("rating").notNull(),
   comment: text("comment"),
-  createdAt: timestamp("created_at").defaultNow()
+  created: timestamp("created").defaultNow(),
 });
 
-// Farmers
-export const farmers = pgTable("farmers", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().unique(),
-  farmName: text("farm_name").notNull(),
-  description: text("description").notNull(),
-  imageUrl: text("image_url").notNull(),
-  specialties: json("specialties").notNull().$type<string[]>(), // Array of specialties (tags)
-  featured: boolean("featured").default(false)
+// Insert schemas using drizzle-zod
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  created: true
 });
 
-// Testimonials
-export const testimonials = pgTable("testimonials", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  content: text("content").notNull(),
-  rating: integer("rating").notNull(),
-  customerType: text("customer_type"), // e.g., "Loyal customer for 2 years", "Weekly subscriber"
-  featured: boolean("featured").default(false)
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true
 });
 
-// Insertion schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
-export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
-export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, rating: true, reviewCount: true });
-export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, createdAt: true });
-export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
-export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, createdAt: true });
-export const insertFarmerSchema = createInsertSchema(farmers).omit({ id: true });
-export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ id: true });
+export const insertProductSchema = createInsertSchema(products).omit({
+  id: true, 
+  created: true
+});
 
-// Types
+export const insertCartSchema = createInsertSchema(carts).omit({
+  id: true,
+  created: true
+});
+
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({
+  id: true
+});
+
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  created: true
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true
+});
+
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  created: true
+});
+
+// Define type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
@@ -133,6 +135,9 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
+
+export type Cart = typeof carts.$inferSelect;
+export type InsertCart = z.infer<typeof insertCartSchema>;
 
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
@@ -145,9 +150,3 @@ export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
-
-export type Farmer = typeof farmers.$inferSelect;
-export type InsertFarmer = z.infer<typeof insertFarmerSchema>;
-
-export type Testimonial = typeof testimonials.$inferSelect;
-export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;

@@ -1,145 +1,32 @@
-import type { Express, Request, Response } from "express";
+import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth } from "./auth";
 import { 
-  insertUserSchema, 
   insertProductSchema, 
   insertCartItemSchema, 
   insertOrderSchema,
-  insertOrderItemSchema,
-  insertReviewSchema,
-  insertFarmerSchema,
-  insertTestimonialSchema
+  insertReviewSchema
 } from "@shared/schema";
-import * as bcrypt from "bcryptjs";
-import * as jwt from "jsonwebtoken";
-import { z } from "zod";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-
-// Authentication middleware
-const authenticate = async (req: Request, res: Response, next: Function) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    
-    if (!token) {
-      return res.status(401).json({ message: "Authorization token missing" });
-    }
-    
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
-    const user = await storage.getUser(decoded.userId);
-    
-    if (!user) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-    
-    (req as any).user = user;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Authentication failed" });
-  }
-};
-
-// Farmer authorization middleware
-const authorizeFarmer = async (req: Request, res: Response, next: Function) => {
-  const user = (req as any).user;
-  
-  if (user.role !== "farmer") {
-    return res.status(403).json({ message: "Access denied. Farmers only." });
-  }
-  
-  next();
-};
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Create HTTP server
-  const httpServer = createServer(app);
-  
-  // Auth routes
-  app.post("/api/auth/register", async (req: Request, res: Response) => {
-    try {
-      const userData = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByUsername(userData.username) || 
-                           await storage.getUserByEmail(userData.email);
-      
-      if (existingUser) {
-        return res.status(400).json({ message: "Username or email already exists" });
-      }
-      
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(userData.password, salt);
-      
-      // Create user
-      const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
-      });
-      
-      // Create JWT token
-      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-      
-      // Return user data without password
-      const { password, ...userWithoutPassword } = user;
-      res.status(201).json({ user: userWithoutPassword, token });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
-    try {
-      const { username, password } = req.body;
-      
-      // Validate input
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-      }
-      
-      // Find user
-      const user = await storage.getUserByUsername(username);
-      
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      // Validate password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      // Create JWT token
-      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-      
-      // Return user data without password
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token });
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
+  // Setup authentication routes
+  setupAuth(app);
+
   // Categories routes
-  app.get("/api/categories", async (_req: Request, res: Response) => {
+  app.get("/api/categories", async (req, res) => {
     try {
       const categories = await storage.getCategories();
       res.json(categories);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch categories" });
     }
   });
-  
-  app.get("/api/categories/:slug", async (req: Request, res: Response) => {
+
+  app.get("/api/categories/:id", async (req, res) => {
     try {
-      const { slug } = req.params;
-      const category = await storage.getCategoryBySlug(slug);
+      const categoryId = parseInt(req.params.id);
+      const category = await storage.getCategory(categoryId);
       
       if (!category) {
         return res.status(404).json({ message: "Category not found" });
@@ -147,33 +34,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(category);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch category" });
     }
   });
-  
+
   // Products routes
-  app.get("/api/products", async (_req: Request, res: Response) => {
+  app.get("/api/products", async (req, res) => {
     try {
-      const products = await storage.getProducts();
+      let products;
+      
+      if (req.query.categoryId) {
+        const categoryId = parseInt(req.query.categoryId as string);
+        products = await storage.getProductsByCategory(categoryId);
+      } else if (req.query.farmerId) {
+        const farmerId = parseInt(req.query.farmerId as string);
+        products = await storage.getProductsByFarmer(farmerId);
+      } else {
+        products = await storage.getProducts();
+      }
+      
       res.json(products);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch products" });
     }
   });
-  
-  app.get("/api/products/featured", async (_req: Request, res: Response) => {
+
+  app.get("/api/products/:id", async (req, res) => {
     try {
-      const products = await storage.getFeaturedProducts();
-      res.json(products);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.get("/api/products/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const product = await storage.getProduct(parseInt(id));
+      const productId = parseInt(req.params.id);
+      const product = await storage.getProduct(productId);
       
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
@@ -181,100 +70,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(product);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch product" });
     }
   });
-  
-  app.get("/api/products/category/:categoryId", async (req: Request, res: Response) => {
-    try {
-      const { categoryId } = req.params;
-      const products = await storage.getProductsByCategory(parseInt(categoryId));
-      res.json(products);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
+
+  app.post("/api/products", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== "farmer") {
+      return res.status(403).json({ message: "Only farmers can create products" });
     }
-  });
-  
-  app.post("/api/products", authenticate, authorizeFarmer, async (req: Request, res: Response) => {
+
     try {
       const productData = insertProductSchema.parse(req.body);
-      const user = (req as any).user;
+      productData.farmerId = req.user.id; // Set farmer ID from authenticated user
       
-      // Set the farmerId to the current user's ID
-      const product = await storage.createProduct({
-        ...productData,
-        farmerId: user.id
-      });
-      
+      const product = await storage.createProduct(productData);
       res.status(201).json(product);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
+      res.status(400).json({ message: "Invalid product data" });
     }
   });
-  
-  app.put("/api/products/:id", authenticate, authorizeFarmer, async (req: Request, res: Response) => {
+
+  app.put("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== "farmer") {
+      return res.status(403).json({ message: "Only farmers can update products" });
+    }
+
     try {
-      const { id } = req.params;
-      const user = (req as any).user;
-      const product = await storage.getProduct(parseInt(id));
+      const productId = parseInt(req.params.id);
+      const product = await storage.getProduct(productId);
       
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
       
-      // Ensure the farmer owns the product
-      if (product.farmerId !== user.id) {
-        return res.status(403).json({ message: "Not authorized to update this product" });
+      // Ensure farmer can only update their own products
+      if (product.farmerId !== req.user.id) {
+        return res.status(403).json({ message: "You can only update your own products" });
       }
       
-      const updatedProduct = await storage.updateProduct(parseInt(id), req.body);
+      const updatedProduct = await storage.updateProduct(productId, req.body);
       res.json(updatedProduct);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
+      res.status(400).json({ message: "Invalid product data" });
     }
   });
-  
-  app.delete("/api/products/:id", authenticate, authorizeFarmer, async (req: Request, res: Response) => {
+
+  app.delete("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== "farmer") {
+      return res.status(403).json({ message: "Only farmers can delete products" });
+    }
+
     try {
-      const { id } = req.params;
-      const user = (req as any).user;
-      const product = await storage.getProduct(parseInt(id));
+      const productId = parseInt(req.params.id);
+      const product = await storage.getProduct(productId);
       
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
       
-      // Ensure the farmer owns the product
-      if (product.farmerId !== user.id) {
-        return res.status(403).json({ message: "Not authorized to delete this product" });
+      // Ensure farmer can only delete their own products
+      if (product.farmerId !== req.user.id) {
+        return res.status(403).json({ message: "You can only delete your own products" });
       }
       
-      const success = await storage.deleteProduct(parseInt(id));
-      
-      if (!success) {
-        return res.status(400).json({ message: "Failed to delete product" });
+      const success = await storage.deleteProduct(productId);
+      if (success) {
+        res.status(204).send();
+      } else {
+        res.status(500).json({ message: "Failed to delete product" });
       }
-      
-      res.json({ message: "Product deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to delete product" });
     }
   });
-  
-  // Cart routes
-  app.get("/api/cart", authenticate, async (req: Request, res: Response) => {
+
+  // Farmers routes
+  app.get("/api/farmers", async (req, res) => {
     try {
-      const user = (req as any).user;
-      const cartItems = await storage.getCartItems(user.id);
+      const farmers = await storage.getFarmers();
       
-      // Get full product details for each cart item
-      const cartWithProducts = await Promise.all(
+      // Filter out sensitive information
+      const sanitizedFarmers = farmers.map(farmer => ({
+        id: farmer.id,
+        name: farmer.name,
+        bio: farmer.bio,
+        profileImage: farmer.profileImage
+      }));
+      
+      res.json(sanitizedFarmers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch farmers" });
+    }
+  });
+
+  app.get("/api/farmers/:id", async (req, res) => {
+    try {
+      const farmerId = parseInt(req.params.id);
+      const farmer = await storage.getUser(farmerId);
+      
+      if (!farmer || farmer.role !== "farmer") {
+        return res.status(404).json({ message: "Farmer not found" });
+      }
+      
+      // Filter out sensitive information
+      const sanitizedFarmer = {
+        id: farmer.id,
+        name: farmer.name,
+        bio: farmer.bio,
+        profileImage: farmer.profileImage
+      };
+      
+      res.json(sanitizedFarmer);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch farmer" });
+    }
+  });
+
+  // Cart routes
+  app.get("/api/cart", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to access your cart" });
+    }
+
+    try {
+      const userId = req.user.id;
+      let cart = await storage.getCart(userId);
+      
+      // Create cart if it doesn't exist
+      if (!cart) {
+        cart = await storage.createCart({ userId });
+      }
+      
+      const cartItems = await storage.getCartItems(cart.id);
+      
+      // Get product details for each cart item
+      const cartItemsWithProduct = await Promise.all(
         cartItems.map(async (item) => {
           const product = await storage.getProduct(item.productId);
           return {
@@ -284,18 +214,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
-      res.json(cartWithProducts);
+      res.json({
+        id: cart.id,
+        items: cartItemsWithProduct,
+        total: cartItemsWithProduct.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch cart" });
     }
   });
-  
-  app.post("/api/cart", authenticate, async (req: Request, res: Response) => {
+
+  app.post("/api/cart/items", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to add items to your cart" });
+    }
+
     try {
-      const user = (req as any).user;
+      const userId = req.user.id;
+      let cart = await storage.getCart(userId);
+      
+      // Create cart if it doesn't exist
+      if (!cart) {
+        cart = await storage.createCart({ userId });
+      }
+      
       const cartItemData = insertCartItemSchema.parse({
         ...req.body,
-        userId: user.id
+        cartId: cart.id
       });
       
       // Check if product exists
@@ -304,131 +249,214 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
       
-      // Add to cart
-      const cartItem = await storage.addToCart(cartItemData);
-      
-      // Get the product details
-      const cartItemWithProduct = {
-        ...cartItem,
-        product
-      };
-      
-      res.status(201).json(cartItemWithProduct);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      // Check if product is in stock
+      if (product.stock < cartItemData.quantity) {
+        return res.status(400).json({ message: "Not enough stock available" });
       }
-      res.status(500).json({ message: "Server error" });
+      
+      // Check if product already in cart
+      const cartItems = await storage.getCartItems(cart.id);
+      const existingItem = cartItems.find(item => item.productId === cartItemData.productId);
+      
+      let cartItem;
+      if (existingItem) {
+        // Update quantity if product already in cart
+        const newQuantity = existingItem.quantity + cartItemData.quantity;
+        
+        // Check if new quantity exceeds stock
+        if (newQuantity > product.stock) {
+          return res.status(400).json({ message: "Not enough stock available" });
+        }
+        
+        cartItem = await storage.updateCartItem(existingItem.id, newQuantity);
+      } else {
+        // Add new item to cart
+        cartItem = await storage.addCartItem({
+          ...cartItemData,
+          price: product.price
+        });
+      }
+      
+      res.status(201).json(cartItem);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid cart item data" });
     }
   });
-  
-  app.put("/api/cart/:id", authenticate, async (req: Request, res: Response) => {
+
+  app.put("/api/cart/items/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to update cart items" });
+    }
+
     try {
-      const { id } = req.params;
-      const { quantity } = req.body;
+      const itemId = parseInt(req.params.id);
+      const quantity = parseInt(req.body.quantity);
       
-      if (typeof quantity !== "number" || quantity < 1) {
-        return res.status(400).json({ message: "Invalid quantity" });
+      if (isNaN(quantity) || quantity < 1) {
+        return res.status(400).json({ message: "Quantity must be at least 1" });
       }
       
-      const updatedItem = await storage.updateCartItem(parseInt(id), quantity);
+      // Get cart item
+      const userId = req.user.id;
+      const cart = await storage.getCart(userId);
       
-      if (!updatedItem) {
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      
+      const cartItems = await storage.getCartItems(cart.id);
+      const cartItem = cartItems.find(item => item.id === itemId);
+      
+      if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }
       
-      // Get the product details
-      const product = await storage.getProduct(updatedItem.productId);
-      
-      const cartItemWithProduct = {
-        ...updatedItem,
-        product
-      };
-      
-      res.json(cartItemWithProduct);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.delete("/api/cart/:id", authenticate, async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const success = await storage.removeFromCart(parseInt(id));
-      
-      if (!success) {
-        return res.status(400).json({ message: "Failed to remove item from cart" });
+      // Check if product has enough stock
+      const product = await storage.getProduct(cartItem.productId);
+      if (!product || product.stock < quantity) {
+        return res.status(400).json({ message: "Not enough stock available" });
       }
       
-      res.json({ message: "Item removed from cart" });
+      // Update cart item
+      const updatedItem = await storage.updateCartItem(itemId, quantity);
+      res.json(updatedItem);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to update cart item" });
     }
   });
-  
-  // Orders routes
-  app.get("/api/orders", authenticate, async (req: Request, res: Response) => {
+
+  app.delete("/api/cart/items/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to remove cart items" });
+    }
+
     try {
-      const user = (req as any).user;
-      const orders = await storage.getOrders(user.id);
+      const itemId = parseInt(req.params.id);
+      
+      // Get cart item
+      const userId = req.user.id;
+      const cart = await storage.getCart(userId);
+      
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      
+      const cartItems = await storage.getCartItems(cart.id);
+      const cartItem = cartItems.find(item => item.id === itemId);
+      
+      if (!cartItem) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+      
+      // Remove cart item
+      const success = await storage.removeCartItem(itemId);
+      if (success) {
+        res.status(204).send();
+      } else {
+        res.status(500).json({ message: "Failed to remove cart item" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove cart item" });
+    }
+  });
+
+  app.delete("/api/cart", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to clear your cart" });
+    }
+
+    try {
+      const userId = req.user.id;
+      const cart = await storage.getCart(userId);
+      
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      
+      // Clear cart
+      const success = await storage.clearCart(cart.id);
+      if (success) {
+        res.status(204).send();
+      } else {
+        res.status(500).json({ message: "Failed to clear cart" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to clear cart" });
+    }
+  });
+
+  // Order routes
+  app.get("/api/orders", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to access orders" });
+    }
+
+    try {
+      const userId = req.user.id;
+      let orders;
+      
+      // If user is a farmer, get orders for their products
+      if (req.user.role === "farmer") {
+        orders = await storage.getFarmerOrders(userId);
+      } else {
+        // Otherwise get user's orders
+        orders = await storage.getOrders(userId);
+      }
       
       // Get order items for each order
       const ordersWithItems = await Promise.all(
         orders.map(async (order) => {
-          const orderItems = Array.from((await storage.orderItems).values())
-            .filter(item => item.orderId === order.id);
-            
-          // Get product details for each order item
-          const itemsWithProducts = await Promise.all(
-            orderItems.map(async (item) => {
-              const product = await storage.getProduct(item.productId);
-              return {
-                ...item,
-                product
-              };
-            })
-          );
-          
+          const items = await storage.getOrderItems(order.id);
           return {
             ...order,
-            items: itemsWithProducts
+            items
           };
         })
       );
       
       res.json(ordersWithItems);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch orders" });
     }
   });
-  
-  app.get("/api/orders/:id", authenticate, async (req: Request, res: Response) => {
+
+  app.get("/api/orders/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to access orders" });
+    }
+
     try {
-      const { id } = req.params;
-      const user = (req as any).user;
-      const order = await storage.getOrder(parseInt(id));
+      const orderId = parseInt(req.params.id);
+      const order = await storage.getOrder(orderId);
       
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
       
-      // Check if order belongs to the user or if user is a farmer with items in this order
-      if (order.customerId !== user.id && user.role === "customer") {
-        return res.status(403).json({ message: "Not authorized to view this order" });
+      // Check if user has access to this order
+      const userId = req.user.id;
+      const userRole = req.user.role;
+      
+      if (order.userId !== userId && userRole !== "farmer") {
+        return res.status(403).json({ message: "You don't have access to this order" });
+      }
+      
+      // If user is a farmer, check if they have products in this order
+      if (userRole === "farmer") {
+        const orderItems = await storage.getOrderItems(orderId);
+        const hasFarmerItems = orderItems.some(item => item.farmerId === userId);
+        
+        if (!hasFarmerItems) {
+          return res.status(403).json({ message: "You don't have access to this order" });
+        }
       }
       
       // Get order items
-      const orderItems = Array.from((await storage.orderItems).values())
-        .filter(item => item.orderId === order.id);
-        
-      // If user is a farmer, filter items to only show their own products
-      const filteredItems = user.role === "farmer" 
-        ? orderItems.filter(item => item.farmerId === user.id) 
-        : orderItems;
+      const items = await storage.getOrderItems(orderId);
       
       // Get product details for each order item
-      const itemsWithProducts = await Promise.all(
-        filteredItems.map(async (item) => {
+      const itemsWithProduct = await Promise.all(
+        items.map(async (item) => {
           const product = await storage.getProduct(item.productId);
           return {
             ...item,
@@ -437,389 +465,212 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
-      const orderWithItems = {
+      res.json({
         ...order,
-        items: itemsWithProducts
-      };
-      
-      res.json(orderWithItems);
+        items: itemsWithProduct
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch order" });
     }
   });
-  
-  app.post("/api/orders", authenticate, async (req: Request, res: Response) => {
+
+  app.post("/api/orders", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to create an order" });
+    }
+
     try {
-      const user = (req as any).user;
+      const userId = req.user.id;
       
-      // Get cart items
-      const cartItems = await storage.getCartItems(user.id);
+      // Get user's cart
+      const cart = await storage.getCart(userId);
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
       
+      const cartItems = await storage.getCartItems(cart.id);
       if (cartItems.length === 0) {
-        return res.status(400).json({ message: "Cart is empty" });
+        return res.status(400).json({ message: "Your cart is empty" });
       }
       
       // Calculate total
       let total = 0;
-      const orderItems: any[] = [];
       
-      for (const cartItem of cartItems) {
-        const product = await storage.getProduct(cartItem.productId);
+      // Check product availability and calculate total
+      for (const item of cartItems) {
+        const product = await storage.getProduct(item.productId);
+        
         if (!product) {
-          return res.status(404).json({ message: `Product not found: ${cartItem.productId}` });
+          return res.status(404).json({ message: `Product with ID ${item.productId} not found` });
         }
         
-        total += product.price * cartItem.quantity;
+        if (product.stock < item.quantity) {
+          return res.status(400).json({ 
+            message: `Not enough stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}` 
+          });
+        }
         
-        orderItems.push({
-          productId: product.id,
-          farmerId: product.farmerId,
-          quantity: cartItem.quantity,
-          price: product.price,
-          status: "pending"
-        });
+        total += item.price * item.quantity;
       }
       
-      // Validate order data
+      // Create order
       const orderData = insertOrderSchema.parse({
         ...req.body,
-        customerId: user.id,
+        userId,
         total
       });
       
-      // Create order
-      const order = await storage.createOrder(orderData, orderItems);
+      const order = await storage.createOrder(orderData);
+      
+      // Create order items
+      for (const item of cartItems) {
+        const product = await storage.getProduct(item.productId);
+        
+        await storage.createOrderItem({
+          orderId: order.id,
+          productId: item.productId,
+          farmerId: product!.farmerId,
+          quantity: item.quantity,
+          price: item.price
+        });
+        
+        // Update product stock
+        await storage.updateProduct(item.productId, {
+          stock: product!.stock - item.quantity
+        });
+      }
       
       // Clear cart
-      await storage.clearCart(user.id);
+      await storage.clearCart(cart.id);
       
-      // Get order with items
-      const createdOrderItems = Array.from((await storage.orderItems).values())
-        .filter(item => item.orderId === order.id);
-      
-      // Get product details for each order item
-      const itemsWithProducts = await Promise.all(
-        createdOrderItems.map(async (item) => {
-          const product = await storage.getProduct(item.productId);
-          return {
-            ...item,
-            product
-          };
-        })
-      );
-      
-      const orderWithItems = {
-        ...order,
-        items: itemsWithProducts
-      };
-      
-      res.status(201).json(orderWithItems);
+      res.status(201).json(order);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
+      res.status(400).json({ message: "Invalid order data" });
     }
   });
-  
-  app.put("/api/orders/:id", authenticate, async (req: Request, res: Response) => {
+
+  app.put("/api/orders/:id/status", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== "farmer") {
+      return res.status(403).json({ message: "Only farmers can update order status" });
+    }
+
     try {
-      const { id } = req.params;
+      const orderId = parseInt(req.params.id);
       const { status } = req.body;
-      const user = (req as any).user;
-      const order = await storage.getOrder(parseInt(id));
       
+      if (!["processing", "shipped", "delivered", "cancelled"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      
+      const order = await storage.getOrder(orderId);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
       
-      // Only allow the customer who placed the order to update it
-      if (order.customerId !== user.id) {
-        return res.status(403).json({ message: "Not authorized to update this order" });
+      // Check if farmer has products in this order
+      const orderItems = await storage.getOrderItems(orderId);
+      const farmerId = req.user.id;
+      const hasFarmerItems = orderItems.some(item => item.farmerId === farmerId);
+      
+      if (!hasFarmerItems) {
+        return res.status(403).json({ message: "You don't have access to this order" });
       }
       
-      const updatedOrder = await storage.updateOrderStatus(parseInt(id), status);
+      // Update order status
+      const updatedOrder = await storage.updateOrderStatus(orderId, status);
       res.json(updatedOrder);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to update order status" });
     }
   });
-  
-  // Farmer order routes
-  app.get("/api/farmer/orders", authenticate, authorizeFarmer, async (req: Request, res: Response) => {
+
+  // Review routes
+  app.get("/api/products/:id/reviews", async (req, res) => {
     try {
-      const user = (req as any).user;
-      const orderItems = await storage.getFarmerOrders(user.id);
+      const productId = parseInt(req.params.id);
+      const product = await storage.getProduct(productId);
       
-      // Get order and product details for each order item
-      const itemsWithDetails = await Promise.all(
-        orderItems.map(async (item) => {
-          const order = await storage.getOrder(item.orderId);
-          const product = await storage.getProduct(item.productId);
-          return {
-            ...item,
-            order,
-            product
-          };
-        })
-      );
-      
-      res.json(itemsWithDetails);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.put("/api/farmer/orders/:id", authenticate, authorizeFarmer, async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      const user = (req as any).user;
-      const orderItem = await storage.orderItems.get(parseInt(id));
-      
-      if (!orderItem) {
-        return res.status(404).json({ message: "Order item not found" });
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
       }
       
-      // Ensure the farmer owns the product in the order item
-      if (orderItem.farmerId !== user.id) {
-        return res.status(403).json({ message: "Not authorized to update this order item" });
-      }
-      
-      const updatedOrderItem = await storage.updateOrderItemStatus(parseInt(id), status);
-      res.json(updatedOrderItem);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  // Reviews routes
-  app.get("/api/products/:id/reviews", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const reviews = await storage.getProductReviews(parseInt(id));
+      const reviews = await storage.getProductReviews(productId);
       
       // Get user details for each review
-      const reviewsWithUsers = await Promise.all(
+      const reviewsWithUser = await Promise.all(
         reviews.map(async (review) => {
           const user = await storage.getUser(review.userId);
           return {
             ...review,
             user: user ? {
               id: user.id,
-              username: user.username,
-              fullName: user.fullName
+              name: user.name,
+              profileImage: user.profileImage
             } : null
           };
         })
       );
       
-      res.json(reviewsWithUsers);
+      res.json(reviewsWithUser);
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Failed to fetch reviews" });
     }
   });
-  
-  app.post("/api/products/:id/reviews", authenticate, async (req: Request, res: Response) => {
+
+  app.post("/api/products/:id/reviews", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to leave a review" });
+    }
+
     try {
-      const { id } = req.params;
-      const user = (req as any).user;
-      const product = await storage.getProduct(parseInt(id));
+      const productId = parseInt(req.params.id);
+      const product = await storage.getProduct(productId);
       
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
       
-      // Check if user has already reviewed this product
-      const existingReviews = await storage.getProductReviews(parseInt(id));
-      const userReview = existingReviews.find(review => review.userId === user.id);
+      // Check if user has purchased this product
+      const userId = req.user.id;
+      const orders = await storage.getOrders(userId);
       
-      if (userReview) {
-        return res.status(400).json({ message: "You have already reviewed this product" });
+      let hasPurchased = false;
+      for (const order of orders) {
+        const orderItems = await storage.getOrderItems(order.id);
+        if (orderItems.some(item => item.productId === productId)) {
+          hasPurchased = true;
+          break;
+        }
+      }
+      
+      if (!hasPurchased) {
+        return res.status(403).json({ message: "You can only review products you've purchased" });
       }
       
       const reviewData = insertReviewSchema.parse({
         ...req.body,
-        userId: user.id,
-        productId: parseInt(id)
+        userId,
+        productId
       });
       
       const review = await storage.createReview(reviewData);
       
-      // Add user details to response
-      const reviewWithUser = {
+      // Get user details
+      const user = await storage.getUser(userId);
+      
+      res.status(201).json({
         ...review,
         user: {
-          id: user.id,
-          username: user.username,
-          fullName: user.fullName
+          id: user!.id,
+          name: user!.name,
+          profileImage: user!.profileImage
         }
-      };
-      
-      res.status(201).json(reviewWithUser);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  // Farmers routes
-  app.get("/api/farmers", async (_req: Request, res: Response) => {
-    try {
-      const farmers = await storage.getFarmers();
-      res.json(farmers);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.get("/api/farmers/featured", async (_req: Request, res: Response) => {
-    try {
-      const farmers = await storage.getFeaturedFarmers();
-      res.json(farmers);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.get("/api/farmers/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const farmer = await storage.getFarmer(parseInt(id));
-      
-      if (!farmer) {
-        return res.status(404).json({ message: "Farmer not found" });
-      }
-      
-      // Get farmer's products
-      const products = await storage.getProductsByFarmer(farmer.userId);
-      
-      const farmerWithProducts = {
-        ...farmer,
-        products
-      };
-      
-      res.json(farmerWithProducts);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.post("/api/farmers", authenticate, async (req: Request, res: Response) => {
-    try {
-      const user = (req as any).user;
-      
-      // Check if user is already registered as a farmer
-      const existingFarmer = Array.from((await storage.farmers).values())
-        .find(farmer => farmer.userId === user.id);
-      
-      if (existingFarmer) {
-        return res.status(400).json({ message: "You are already registered as a farmer" });
-      }
-      
-      // Update user role to farmer
-      await storage.updateUser(user.id, { role: "farmer" });
-      
-      const farmerData = insertFarmerSchema.parse({
-        ...req.body,
-        userId: user.id
       });
-      
-      const farmer = await storage.createFarmer(farmerData);
-      res.status(201).json(farmer);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
+      res.status(400).json({ message: "Invalid review data" });
     }
   });
-  
-  // Testimonials routes
-  app.get("/api/testimonials", async (_req: Request, res: Response) => {
-    try {
-      const testimonials = await storage.getTestimonials();
-      
-      // Get user details for each testimonial
-      const testimonialsWithUsers = await Promise.all(
-        testimonials.map(async (testimonial) => {
-          const user = await storage.getUser(testimonial.userId);
-          return {
-            ...testimonial,
-            user: user ? {
-              id: user.id,
-              username: user.username,
-              fullName: user.fullName,
-              profileImage: user.profileImage
-            } : null
-          };
-        })
-      );
-      
-      res.json(testimonialsWithUsers);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.get("/api/testimonials/featured", async (_req: Request, res: Response) => {
-    try {
-      const testimonials = await storage.getFeaturedTestimonials();
-      
-      // Get user details for each testimonial
-      const testimonialsWithUsers = await Promise.all(
-        testimonials.map(async (testimonial) => {
-          const user = await storage.getUser(testimonial.userId);
-          return {
-            ...testimonial,
-            user: user ? {
-              id: user.id,
-              username: user.username,
-              fullName: user.fullName,
-              profileImage: user.profileImage
-            } : null
-          };
-        })
-      );
-      
-      res.json(testimonialsWithUsers);
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
-  app.post("/api/testimonials", authenticate, async (req: Request, res: Response) => {
-    try {
-      const user = (req as any).user;
-      
-      const testimonialData = insertTestimonialSchema.parse({
-        ...req.body,
-        userId: user.id
-      });
-      
-      const testimonial = await storage.createTestimonial(testimonialData);
-      
-      // Add user details to response
-      const testimonialWithUser = {
-        ...testimonial,
-        user: {
-          id: user.id,
-          username: user.username,
-          fullName: user.fullName,
-          profileImage: user.profileImage
-        }
-      };
-      
-      res.status(201).json(testimonialWithUser);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-  
+
+  const httpServer = createServer(app);
   return httpServer;
 }

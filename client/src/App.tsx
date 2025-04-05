@@ -1,63 +1,56 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
+import { AuthProvider } from "@/hooks/use-auth";
+import { CartProvider } from "@/hooks/use-cart";
 import { Toaster } from "@/components/ui/toaster";
+import { ProtectedRoute } from "@/lib/protected-route";
+
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import HomePage from "@/pages/home-page";
+import ShopPage from "@/pages/shop-page";
+import ProductPage from "@/pages/product-page";
+import CartPage from "@/pages/cart-page";
+import CheckoutPage from "@/pages/checkout-page";
+import FarmerPage from "@/pages/farmer-page";
+import FarmersPage from "@/pages/farmers-page";
+import ProfilePage from "@/pages/profile-page";
+import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import Shop from "@/pages/Shop";
-import ProductDetails from "@/pages/ProductDetails";
-import Cart from "@/pages/Cart";
-import Checkout from "@/pages/Checkout";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import FarmerDashboard from "@/pages/FarmerDashboard";
-import FarmerProducts from "@/pages/FarmerProducts";
-import FarmerOrders from "@/pages/FarmerOrders";
-import UserProfile from "@/pages/UserProfile";
-import UserOrders from "@/pages/UserOrders";
-import { useAuth } from "./context/AuthContext";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 function Router() {
-  const { user } = useAuth();
-  const isFarmer = user?.role === "farmer";
-
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/shop" component={Shop} />
-          <Route path="/shop/:category" component={Shop} />
-          <Route path="/product/:id" component={ProductDetails} />
-          <Route path="/cart" component={Cart} />
-          <Route path="/checkout" component={Checkout} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route path="/profile" component={UserProfile} />
-          <Route path="/orders" component={UserOrders} />
-          
-          {/* Farmer routes - only accessible if user is a farmer */}
-          {isFarmer && <Route path="/farmer/dashboard" component={FarmerDashboard} />}
-          {isFarmer && <Route path="/farmer/products" component={FarmerProducts} />}
-          {isFarmer && <Route path="/farmer/orders" component={FarmerOrders} />}
-          
-          {/* Fallback to 404 */}
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-      <Footer />
-    </div>
+    <Switch>
+      <Route path="/" component={HomePage} />
+      <Route path="/shop" component={ShopPage} />
+      <Route path="/product/:id" component={ProductPage} />
+      <Route path="/cart" component={CartPage} />
+      <ProtectedRoute path="/checkout" component={CheckoutPage} />
+      <Route path="/farmer/:id" component={FarmerPage} />
+      <Route path="/farmers" component={FarmersPage} />
+      <ProtectedRoute path="/profile" component={ProfilePage} />
+      <Route path="/auth" component={AuthPage} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <CartProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">
+              <Router />
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </CartProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
