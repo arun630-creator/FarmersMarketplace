@@ -53,44 +53,44 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/shop">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     All Products
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/shop?category=1">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Vegetables
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/shop?category=2">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Fruits
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/shop?category=4">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Dairy
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/shop?category=3">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Grains
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>
                 <Link href="/shop?tag=Seasonal">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Seasonal Specials
-                  </a>
+                  </span>
                 </Link>
               </li>
             </ul>
@@ -109,9 +109,9 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/farmers">
-                  <a className="text-neutral-400 hover:text-white transition-colors">
+                  <span className="text-neutral-400 hover:text-white transition-colors cursor-pointer">
                     Meet the Farmers
-                  </a>
+                  </span>
                 </Link>
               </li>
               <li>

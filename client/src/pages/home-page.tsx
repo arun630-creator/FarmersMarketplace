@@ -110,9 +110,9 @@ export default function HomePage() {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-neutral-900 font-heading">Featured Products</h2>
             <Link href="/shop">
-              <a className="text-primary hover:text-primary-dark font-medium flex items-center">
+              <span className="text-primary hover:text-primary-dark font-medium flex items-center cursor-pointer">
                 View All <span aria-hidden="true" className="ml-1">→</span>
-              </a>
+              </span>
             </Link>
           </div>
 

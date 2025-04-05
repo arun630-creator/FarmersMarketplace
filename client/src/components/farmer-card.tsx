@@ -28,9 +28,9 @@ export function FarmerCard({ farmer, specialties = ["Vegetables", "Organic", "Su
           ))}
         </div>
         <Link href={`/farmer/${farmer.id}`}>
-          <a className="block mt-4 text-primary hover:text-primary-dark font-medium">
+          <span className="block mt-4 text-primary hover:text-primary-dark font-medium cursor-pointer">
             View Products <span aria-hidden="true">→</span>
-          </a>
+          </span>
         </Link>
       </div>
     </div>

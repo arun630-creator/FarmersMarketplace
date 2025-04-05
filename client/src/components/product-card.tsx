@@ -33,13 +33,13 @@ export function ProductCard({ product, farmerName, farmerImage }: ProductCardPro
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
         <Link href={`/product/${product.id}`}>
-          <a>
+          <span className="block cursor-pointer">
             <img 
               src={product.image || "https://images.unsplash.com/photo-1571680322279-a226e6a4cc2a"} 
               alt={product.name} 
               className="w-full h-48 object-cover"
             />
-          </a>
+          </span>
         </Link>
         <div className="absolute top-2 left-2">
           {product.isOrganic && (
@@ -71,9 +71,9 @@ export function ProductCard({ product, farmerName, farmerImage }: ProductCardPro
           </div>
         )}
         <Link href={`/product/${product.id}`}>
-          <a>
-            <h3 className="font-bold text-neutral-900 text-lg mb-1">{product.name}</h3>
-          </a>
+          <span className="block">
+            <h3 className="font-bold text-neutral-900 text-lg mb-1 hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
+          </span>
         </Link>
         <p className="text-neutral-700 text-sm mb-3 line-clamp-2">{product.description}</p>
         <div className="flex justify-between items-center">

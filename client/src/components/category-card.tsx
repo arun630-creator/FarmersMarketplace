@@ -9,7 +9,7 @@ interface CategoryCardProps {
 export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link href={`/shop?category=${category.id}`}>
-      <a className="group relative rounded-lg overflow-hidden h-40 md:h-56 shadow-md hover:shadow-lg transition duration-200">
+      <div className="group relative rounded-lg overflow-hidden h-40 md:h-56 shadow-md hover:shadow-lg transition duration-200 cursor-pointer">
         <img 
           src={category.image || `https://images.unsplash.com/photo-1610832958506-aa56368176cf`} 
           alt={category.name} 
@@ -18,7 +18,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
           <h3 className="text-white font-bold text-lg md:text-xl p-4 font-heading">{category.name}</h3>
         </div>
-      </a>
+      </div>
     </Link>
   );
 }

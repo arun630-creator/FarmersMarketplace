@@ -107,8 +107,10 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // 24 hours
     });
     
-    // Initialize with sample categories
+    // Initialize with sample data
     this.seedCategories();
+    this.seedFarmers();
+    this.seedProducts();
   }
 
   private seedCategories() {
@@ -124,6 +126,147 @@ export class MemStorage implements IStorage {
     categories.forEach(category => {
       this.createCategory(category);
     });
+  }
+  
+  private async seedFarmers() {
+    const farmers: InsertUser[] = [
+      {
+        username: "sarahfarms",
+        password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
+        email: "sarah@greenfarms.com",
+        name: "Sarah Green",
+        role: "farmer",
+        bio: "Third-generation farmer specializing in organic vegetables. Our farm has been in the family for over 70 years, practicing sustainable agriculture.",
+        profileImage: "https://images.unsplash.com/photo-1607611439230-fcbf50e42f5c"
+      },
+      {
+        username: "johndairy",
+        password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
+        email: "john@happycows.com",
+        name: "John Miller",
+        role: "farmer",
+        bio: "Dairy farmer with a focus on ethical animal care. Our cows graze on open pastures and are treated like family, resulting in the highest quality milk products.",
+        profileImage: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e"
+      },
+      {
+        username: "mapleorchards",
+        password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
+        email: "emily@mapleorchards.com",
+        name: "Emily Johnson",
+        role: "farmer",
+        bio: "Fruit orchards maintained using integrated pest management. Our apples, peaches, and berries are grown with minimal intervention and maximum flavor.",
+        profileImage: "https://images.unsplash.com/photo-1596815064285-45ed8a9c0463"
+      }
+    ];
+  
+    for (const farmer of farmers) {
+      await this.createUser(farmer);
+    }
+  }
+  
+  private async seedProducts() {
+    const products: InsertProduct[] = [
+      {
+        name: "Organic Carrots",
+        description: "Sweet and crunchy organic carrots harvested fresh from our farm.",
+        price: 2.99,
+        unit: "bunch",
+        farmerId: 1,
+        categoryId: 1,
+        image: "https://images.unsplash.com/photo-1598170845053-a6c53d5f9f9e",
+        stock: 50,
+        isOrganic: true,
+        tags: ["Organic", "Seasonal"]
+      },
+      {
+        name: "Fresh Spinach",
+        description: "Nutrient-rich dark leafy greens perfect for salads and cooking.",
+        price: 3.49,
+        unit: "bag",
+        farmerId: 1,
+        categoryId: 1,
+        image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb",
+        stock: 30,
+        isOrganic: true,
+        tags: ["Organic", "Leafy Greens"]
+      },
+      {
+        name: "Heirloom Tomatoes",
+        description: "Colorful variety of heritage tomatoes bursting with flavor.",
+        price: 4.99,
+        unit: "lb",
+        farmerId: 1,
+        categoryId: 1,
+        image: "https://images.unsplash.com/photo-1582284540020-8acbe03f4924",
+        stock: 25,
+        isOrganic: true,
+        tags: ["Heirloom", "Seasonal"]
+      },
+      {
+        name: "Artisanal Cheese",
+        description: "Small-batch aged cheese made from our own grass-fed cows' milk.",
+        price: 6.99,
+        unit: "piece",
+        farmerId: 2,
+        categoryId: 4,
+        image: "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d",
+        stock: 15,
+        isOrganic: false,
+        tags: ["Artisanal", "Grass-fed"]
+      },
+      {
+        name: "Fresh Milk",
+        description: "Creamy whole milk from pasture-raised cows, bottled on our farm.",
+        price: 4.49,
+        unit: "quart",
+        farmerId: 2,
+        categoryId: 4,
+        image: "https://images.unsplash.com/photo-1563636619-e9143da7973b",
+        stock: 20,
+        isOrganic: true,
+        tags: ["Grass-fed", "Raw"]
+      },
+      {
+        name: "Greek Yogurt",
+        description: "Thick, protein-rich yogurt made using traditional methods.",
+        price: 5.49,
+        unit: "tub",
+        farmerId: 2,
+        categoryId: 4,
+        image: "https://images.unsplash.com/photo-1488477181946-6428eeb47fcc",
+        stock: 15,
+        isOrganic: true,
+        tags: ["Probiotic", "High-protein"]
+      },
+      {
+        name: "Fresh Apples",
+        description: "Crisp and juicy apples picked at peak ripeness from our orchards.",
+        price: 3.99,
+        unit: "lb",
+        farmerId: 3,
+        categoryId: 2,
+        image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb",
+        stock: 40,
+        isOrganic: true,
+        tags: ["Seasonal", "Fresh-picked"]
+      },
+      {
+        name: "Mixed Berries",
+        description: "Assortment of sweet strawberries, blueberries, and blackberries.",
+        price: 5.99,
+        unit: "pint",
+        farmerId: 3,
+        categoryId: 2,
+        image: "https://images.unsplash.com/photo-1563746924237-f4471ca64673",
+        stock: 15,
+        isOrganic: true,
+        tags: ["Antioxidant-rich", "Seasonal"]
+      }
+    ];
+
+    for (const product of products) {
+      await this.createProduct(product);
+    }
   }
 
   // User operations
