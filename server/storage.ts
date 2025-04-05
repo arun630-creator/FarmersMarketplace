@@ -117,7 +117,7 @@ export class MemStorage implements IStorage {
     const categories: InsertCategory[] = [
       { name: "Vegetables", description: "Fresh, locally grown vegetables", image: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80" },
       { name: "Fruits", description: "Seasonal and exotic fruits", image: "https://images.unsplash.com/photo-1610397962076-02407a169a5b?q=80" },
-      { name: "Grains", description: "Wholesome grains and cereals", image: "https://images.unsplash.com/photo-1574323347407-f5e1c5a1ec21?q=80" },
+      { name: "Grains", description: "Wholesome grains and cereals", image: "https://images.unsplash.com/photo-1568386453619-84c3ff4b43c5?q=80" },
       { name: "Dairy", description: "Farm fresh dairy products", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80" },
       { name: "Honey", description: "Organic and raw honey products", image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?q=80" },
       { name: "Eggs", description: "Free-range eggs", image: "https://images.unsplash.com/photo-1498654077810-12c21d4d6dc3?q=80" }
