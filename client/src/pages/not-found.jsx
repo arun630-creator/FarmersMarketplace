@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 
 export default function NotFound() {
+  const [_, navigate] = useLocation();
+  
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
       <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
@@ -9,11 +11,12 @@ export default function NotFound() {
       <p className="text-gray-500 max-w-md text-center mb-8">
         The page you're looking for doesn't exist or has been moved.
       </p>
-      <Link href="/">
-        <div className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors cursor-pointer">
-          Go to Homepage
-        </div>
-      </Link>
+      <button 
+        onClick={() => navigate("/")} 
+        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+      >
+        Go to Homepage
+      </button>
     </div>
   );
 }

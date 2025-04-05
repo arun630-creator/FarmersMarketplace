@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function HomePage() {
+  const [_, navigate] = useLocation();
+  
   return (
     <div>
       {/* Hero Section */}
@@ -15,16 +17,18 @@ export default function HomePage() {
               Buy directly from local farmers and enjoy fresh, organic produce delivered to your doorstep.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/shop">
-                <div className="px-6 py-3 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors cursor-pointer">
-                  Shop Now
-                </div>
-              </Link>
-              <Link href="/farmers">
-                <div className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-md font-medium hover:bg-green-50 transition-colors cursor-pointer">
-                  Meet Our Farmers
-                </div>
-              </Link>
+              <button 
+                onClick={() => navigate("/shop")} 
+                className="px-6 py-3 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors"
+              >
+                Shop Now
+              </button>
+              <button 
+                onClick={() => navigate("/farmers")} 
+                className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-md font-medium hover:bg-green-50 transition-colors"
+              >
+                Meet Our Farmers
+              </button>
             </div>
           </div>
         </div>
@@ -79,11 +83,12 @@ export default function HomePage() {
           <p className="text-green-100 mb-8 max-w-2xl mx-auto">
             Join thousands of happy customers who enjoy fresh, locally-grown produce delivered right to their homes.
           </p>
-          <Link href="/shop">
-            <div className="px-6 py-3 bg-white text-green-600 rounded-md font-medium hover:bg-gray-100 transition-colors inline-block cursor-pointer">
-              Browse Products
-            </div>
-          </Link>
+          <button 
+            onClick={() => navigate("/shop")} 
+            className="px-6 py-3 bg-white text-green-600 rounded-md font-medium hover:bg-gray-100 transition-colors inline-block"
+          >
+            Browse Products
+          </button>
         </div>
       </section>
     </div>

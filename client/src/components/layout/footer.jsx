@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 
 export function Footer() {
+  const [_, navigate] = useLocation();
+
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
       <div className="container mx-auto px-4 py-8">
@@ -17,19 +19,28 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-gray-800 mb-4">Navigation</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/">
-                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Home</div>
-                </Link>
+                <div 
+                  onClick={() => navigate("/")} 
+                  className="text-sm text-gray-600 hover:text-green-600 cursor-pointer"
+                >
+                  Home
+                </div>
               </li>
               <li>
-                <Link href="/shop">
-                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Shop</div>
-                </Link>
+                <div 
+                  onClick={() => navigate("/shop")} 
+                  className="text-sm text-gray-600 hover:text-green-600 cursor-pointer"
+                >
+                  Shop
+                </div>
               </li>
               <li>
-                <Link href="/farmers">
-                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Farmers</div>
-                </Link>
+                <div 
+                  onClick={() => navigate("/farmers")} 
+                  className="text-sm text-gray-600 hover:text-green-600 cursor-pointer"
+                >
+                  Farmers
+                </div>
               </li>
             </ul>
           </div>
