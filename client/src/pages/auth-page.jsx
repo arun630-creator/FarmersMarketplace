@@ -1,334 +1,184 @@
-import React from "react";
-import { useLocation, useSearch } from "wouter";
+import React, { useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import PropTypes from "prop-types";
-
-// Form schemas
-const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-  role: z.enum(["customer", "farmer"]),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
 
 export default function AuthPage() {
-  const [, setLocation] = useLocation();
-  const search = useSearch();
-  const redirectPath = new URLSearchParams(search).get("redirect") || "/";
-  const suggRole = new URLSearchParams(search).get("role") || "customer";
+  const [isLogin, setIsLogin] = useState(true);
+  const [location, setLocation] = useLocation();
   const { user, loginMutation, registerMutation } = useAuth();
-
-  // Initialize forms
-  const loginForm = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  const registerForm = useForm({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      role: suggRole === "farmer" ? "farmer" : "customer",
-    },
-  });
-
-  // Form submission handlers
-  const onLoginSubmit = (values) => {
-    loginMutation.mutate(values, {
-      onSuccess: () => {
-        setLocation(redirectPath);
-      },
-    });
-  };
-
-  const onRegisterSubmit = (values) => {
-    registerMutation.mutate(values, {
-      onSuccess: () => {
-        setLocation(redirectPath);
-      },
-    });
-  };
-
-  // If user is logged in, redirect
+  
+  // Redirect to home if already logged in
   if (user) {
-    setLocation(redirectPath);
+    setLocation("/");
     return null;
   }
 
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const userData = {
+      username: formData.get("username"),
+      password: formData.get("password"),
+    };
+
+    if (!isLogin) {
+      userData.email = formData.get("email");
+      userData.name = formData.get("name");
+      userData.role = "customer";
+      registerMutation.mutate(userData);
+    } else {
+      loginMutation.mutate(userData);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Form Column */}
-      <div className="w-full md:w-1/2 flex items-center justify-center px-4 py-12">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
-            </TabsList>
+          <h1 className="text-2xl font-bold mb-6">
+            {isLogin ? "Login to Your Account" : "Create a New Account"}
+          </h1>
 
-            {/* Login Form */}
-            <TabsContent value="login">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-                  <CardDescription>
-                    Enter your credentials to access your account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                      <FormField
-                        control={loginForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="johndoe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={loginForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="******" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
-                        disabled={loginMutation.isPending}
-                      >
-                        {loginMutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Logging in...
-                          </>
-                        ) : (
-                          "Login"
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label 
+                htmlFor="username" 
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
 
-            {/* Register Form */}
-            <TabsContent value="register">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
-                  <CardDescription>
-                    Join FarmFresh today and start enjoying fresh produce!
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                      <FormField
-                        control={registerForm.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="johndoe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="john@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="******" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="******" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="role"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>I want to:</FormLabel>
-                            <div className="flex space-x-4">
-                              <Button
-                                type="button"
-                                variant={field.value === "customer" ? "default" : "outline"}
-                                onClick={() => field.onChange("customer")}
-                                className="flex-1"
-                              >
-                                Shop as Customer
-                              </Button>
-                              <Button
-                                type="button"
-                                variant={field.value === "farmer" ? "default" : "outline"}
-                                onClick={() => field.onChange("farmer")}
-                                className="flex-1"
-                              >
-                                Sell as Farmer
-                              </Button>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
-                        disabled={registerMutation.isPending}
-                      >
-                        {registerMutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Creating account...
-                          </>
-                        ) : (
-                          "Create Account"
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            {!isLogin && (
+              <>
+                <div>
+                  <label 
+                    htmlFor="email" 
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label 
+                    htmlFor="name" 
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </>
+            )}
+
+            <div>
+              <label 
+                htmlFor="password" 
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loginMutation.isPending || registerMutation.isPending}
+              className="w-full bg-green-600 text-white py-2 px-4 rounded-md font-medium hover:bg-green-700 transition-colors disabled:opacity-70"
+            >
+              {loginMutation.isPending || registerMutation.isPending ? (
+                "Loading..."
+              ) : isLogin ? (
+                "Login"
+              ) : (
+                "Register"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={toggleForm}
+              className="text-sm text-green-600 hover:underline"
+            >
+              {isLogin
+                ? "Don't have an account? Register"
+                : "Already have an account? Login"}
+            </button>
+          </div>
+
+          {(loginMutation.isError || registerMutation.isError) && (
+            <div className="mt-4 p-2 bg-red-50 text-red-600 rounded border border-red-200 text-sm">
+              {loginMutation.error?.message || registerMutation.error?.message || "Authentication failed"}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Hero Column */}
-      <div className="hidden md:flex md:w-1/2 bg-primary items-center justify-center">
-        <div className="max-w-md text-center text-white p-8">
-          <h2 className="text-3xl font-bold mb-6">Farm Fresh Goodness</h2>
-          <div className="mb-6">
-            <svg className="w-24 h-24 mx-auto text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a4 4 0 11-8 0 4 4 0 018 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13.5V8.25a.75.75 0 00-.75-.75h-4.5a.75.75 0 00-.75.75v5.25" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.089 10.5L2 12.5V21h20v-8.5l-2.089-2" />
-            </svg>
-          </div>
-          <p className="text-lg mb-6">
-            Join our community of food lovers and farmers who believe in sustainable, local agriculture and delicious, nutritious food.
+      <div className="hidden md:block md:w-1/2 bg-green-600">
+        <div className="h-full flex flex-col justify-center p-12 text-white">
+          <h2 className="text-3xl font-bold mb-6">
+            Welcome to FarmFresh
+          </h2>
+          <p className="text-green-100 mb-8">
+            Join our community of farmers and food enthusiasts. Get access to fresh, locally-grown produce delivered directly to your doorstep.
           </p>
-          <ul className="text-left space-y-3 text-white/90">
-            <li className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <ul className="space-y-4">
+            <li className="flex items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Access farm-fresh produce delivered to your door
+              <span>Browse products from local farmers</span>
             </li>
-            <li className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <li className="flex items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Support local farmers and sustainable agriculture
+              <span>Order fresh produce and artisanal goods</span>
             </li>
-            <li className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <li className="flex items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Know exactly where your food comes from
+              <span>Support sustainable farming practices</span>
             </li>
-            <li className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <li className="flex items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Discover seasonal specialties year-round
+              <span>Get farm-fresh quality at competitive prices</span>
             </li>
           </ul>
         </div>

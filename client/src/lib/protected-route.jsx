@@ -1,34 +1,33 @@
-import { useAuth } from "@/hooks/use-auth";
-import { Loader2 } from "lucide-react";
-import { Redirect, Route, useLocation } from "wouter";
+import React from "react";
 import PropTypes from "prop-types";
+import { Route, Redirect } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
-export function ProtectedRoute({ path, component: Component }) {
+export function ProtectedRoute({ component: Component, path }) {
   const { user, isLoading } = useAuth();
-  const [location] = useLocation();
 
-  if (isLoading) {
-    return (
-      <Route path={path}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Route>
-    );
-  }
+  return (
+    <Route path={path}>
+      {() => {
+        if (isLoading) {
+          return (
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="animate-spin h-8 w-8 border-4 border-green-600 border-t-transparent rounded-full" />
+            </div>
+          );
+        }
 
-  if (!user) {
-    return (
-      <Route path={path}>
-        <Redirect to={`/auth?redirect=${encodeURIComponent(location)}`} />
-      </Route>
-    );
-  }
+        if (!user) {
+          return <Redirect to="/auth" />;
+        }
 
-  return <Route path={path} component={Component} />;
+        return <Component />;
+      }}
+    </Route>
+  );
 }
 
 ProtectedRoute.propTypes = {
+  component: PropTypes.func.isRequired,
   path: PropTypes.string.isRequired,
-  component: PropTypes.elementType.isRequired
 };
