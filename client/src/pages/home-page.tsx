@@ -70,10 +70,11 @@ export default function HomePage() {
               Directly support local farmers while enjoying the freshest produce delivered right to your doorstep.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button asChild size="lg" variant="secondary" className="bg-white text-green-700 hover:bg-gray-100">
-                <Link href="/shop">Shop Now</Link>
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold text-green-700">
+                <Link href="/shop">Shop</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold">
+             
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold text-green-700">
                 <Link href="/auth?role=farmer">Become a Seller</Link>
               </Button>
             </div>
@@ -252,10 +253,10 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">Ready to taste the difference?</h2>
             <p className="text-white/90 text-lg mb-8">Join thousands of happy customers supporting local agriculture while enjoying the freshest produce available.</p>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button asChild size="lg" className="bg-white text-green-700 hover:bg-gray-100">
-                <Link href="/shop">Shop Now</Link>
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold text-green-700">
+                <Link href="/shop">Shop</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold">
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold text-green-700">
                 <Link href="#">Learn How It Works</Link>
               </Button>
             </div>
