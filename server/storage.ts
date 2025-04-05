@@ -173,7 +173,7 @@ export class MemStorage implements IStorage {
         unit: "bunch",
         farmerId: 1,
         categoryId: 1,
-        image: "https://images.unsplash.com/photo-1598170845053-a6c53d5f9f9e",
+        image: "https://images.unsplash.com/photo-1447175008436-054170c2e979?q=80",
         stock: 50,
         isOrganic: true,
         tags: ["Organic", "Seasonal"]

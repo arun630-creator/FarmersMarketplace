@@ -73,7 +73,7 @@ export default function HomePage() {
               <Button asChild size="lg" variant="secondary" className="bg-white text-green-700 hover:bg-gray-100">
                 <Link href="/shop">Shop Now</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10">
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold">
                 <Link href="/auth?role=farmer">Become a Seller</Link>
               </Button>
             </div>
@@ -255,7 +255,7 @@ export default function HomePage() {
               <Button asChild size="lg" className="bg-white text-green-700 hover:bg-gray-100">
                 <Link href="/shop">Shop Now</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10">
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 [&>*]:text-white font-semibold">
                 <Link href="#">Learn How It Works</Link>
               </Button>
             </div>
