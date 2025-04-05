@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import PropTypes from "prop-types";
 
 // Form schemas
 const loginSchema = z.object({

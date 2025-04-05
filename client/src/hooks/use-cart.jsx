@@ -1,6 +1,6 @@
-import { createContext, useContext } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import React, { createContext, useContext } from "react";
 import PropTypes from "prop-types";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,14 +60,10 @@ export function CartProvider({ children }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-      toast({
-        title: "Cart updated",
-        description: "Item quantity has been updated.",
-      });
     },
     onError: (error) => {
       toast({
-        title: "Failed to update item",
+        title: "Failed to update quantity",
         description: error.message,
         variant: "destructive",
       });
@@ -145,7 +141,7 @@ export function CartProvider({ children }) {
 }
 
 CartProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 export function useCart() {

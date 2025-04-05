@@ -7,7 +7,11 @@ async function throwIfResNotOk(res) {
   }
 }
 
-export async function apiRequest(method, url, data) {
+export async function apiRequest(
+  method,
+  url,
+  data,
+) {
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -19,8 +23,8 @@ export async function apiRequest(method, url, data) {
   return res;
 }
 
-export const getQueryFn = ({ on401: unauthorizedBehavior }) => {
-  return async ({ queryKey }) => {
+export const getQueryFn = ({ on401: unauthorizedBehavior }) => 
+  async ({ queryKey }) => {
     const res = await fetch(queryKey[0], {
       credentials: "include",
     });
@@ -32,7 +36,6 @@ export const getQueryFn = ({ on401: unauthorizedBehavior }) => {
     await throwIfResNotOk(res);
     return await res.json();
   };
-};
 
 export const queryClient = new QueryClient({
   defaultOptions: {

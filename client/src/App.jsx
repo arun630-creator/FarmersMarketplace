@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -5,7 +6,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
 import { Toaster } from "@/components/ui/toaster";
 import { ProtectedRoute } from "@/lib/protected-route";
-import PropTypes from 'prop-types';
 
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
