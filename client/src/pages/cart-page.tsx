@@ -66,7 +66,7 @@ export default function CartPage() {
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-6">
         <Link href="/">
-          <a className="hover:text-primary">Home</a>
+          <span className="hover:text-primary cursor-pointer">Home</span>
         </Link>
         <span className="mx-2">›</span>
         <span>Cart</span>
@@ -96,22 +96,22 @@ export default function CartPage() {
                     {/* Product image */}
                     <div className="sm:w-24 h-24">
                       <Link href={`/product/${item.product?.id}`}>
-                        <a>
+                        <div className="cursor-pointer">
                           <img
                             src={item.product?.image || "https://images.unsplash.com/photo-1571680322279-a226e6a4cc2a"}
                             alt={item.product?.name}
                             className="w-full h-full object-cover rounded-md"
                           />
-                        </a>
+                        </div>
                       </Link>
                     </div>
 
                     {/* Product details */}
                     <div className="flex-1">
                       <Link href={`/product/${item.product?.id}`}>
-                        <a className="font-medium text-lg text-neutral-900 hover:text-primary">
+                        <div className="font-medium text-lg text-neutral-900 hover:text-primary cursor-pointer">
                           {item.product?.name}
-                        </a>
+                        </div>
                       </Link>
                       
                       <div className="text-sm text-neutral-500 mb-2">
@@ -165,9 +165,9 @@ export default function CartPage() {
               {/* Continue shopping button */}
               <div className="mt-6 text-center sm:text-left">
                 <Link href="/shop">
-                  <a className="text-primary hover:text-primary-dark font-medium">
+                  <div className="text-primary hover:text-primary-dark font-medium cursor-pointer">
                     ← Continue Shopping
-                  </a>
+                  </div>
                 </Link>
               </div>
             </CardContent>

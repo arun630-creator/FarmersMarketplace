@@ -9,7 +9,19 @@ import { User, InsertUser } from "@shared/schema";
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Extend Express.User with properties from our User type
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      name: string;
+      role: string;
+      address: string | null;
+      phone: string | null;
+      bio: string | null;
+      profileImage: string | null;
+      created: Date | null;
+    }
   }
 }
 
@@ -36,7 +48,9 @@ export function setupAuth(app: Express) {
     store: storage.sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      httpOnly: true
     }
   };
 
@@ -59,11 +73,11 @@ export function setupAuth(app: Express) {
     }),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user: Express.User, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await storage.getUser(id);
-      done(null, user);
+      done(null, user || undefined);
     } catch (error) {
       done(error);
     }
@@ -111,7 +125,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", (err: any, user: Express.User, info: { message?: string }) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ message: info?.message || "Invalid credentials" });

@@ -77,14 +77,14 @@ export function Header() {
           {/* Navigation - desktop */}
           <nav className="hidden md:flex items-center space-x-6">
             <Link href="/shop">
-              <a className="text-neutral-700 hover:text-primary font-medium flex items-center">
+              <div className="text-neutral-700 hover:text-primary font-medium flex items-center cursor-pointer">
                 <Store className="mr-1 h-4 w-4" /> Shop
-              </a>
+              </div>
             </Link>
             <Link href="/farmers">
-              <a className="text-neutral-700 hover:text-primary font-medium flex items-center">
+              <div className="text-neutral-700 hover:text-primary font-medium flex items-center cursor-pointer">
                 <Tractor className="mr-1 h-4 w-4" /> Farmers
-              </a>
+              </div>
             </Link>
             {user ? (
               <DropdownMenu>
@@ -125,20 +125,20 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <Link href="/auth">
-                <a className="text-neutral-700 hover:text-primary font-medium flex items-center">
+                <div className="text-neutral-700 hover:text-primary font-medium flex items-center cursor-pointer">
                   <User className="mr-1 h-4 w-4" /> Account
-                </a>
+                </div>
               </Link>
             )}
             <Link href="/cart">
-              <a className="relative text-neutral-700 hover:text-primary">
+              <div className="relative text-neutral-700 hover:text-primary cursor-pointer">
                 <ShoppingCart className="h-5 w-5" />
                 {cart && cart.items.length > 0 && (
                   <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cart.items.length}
                   </span>
                 )}
-              </a>
+              </div>
             </Link>
           </nav>
 
@@ -183,39 +183,39 @@ export function Header() {
           <div className="container mx-auto px-4 py-3">
             <nav className="flex flex-col space-y-4">
               <Link href="/shop">
-                <a
-                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                <div
+                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Store className="mr-3 w-6 h-6" /> Shop
-                </a>
+                </div>
               </Link>
               <Link href="/farmers">
-                <a
-                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                <div
+                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Tractor className="mr-3 w-6 h-6" /> Farmers
-                </a>
+                </div>
               </Link>
               {user ? (
                 <>
                   <Link href="/profile">
-                    <a
-                      className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                    <div
+                      className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <User className="mr-3 w-6 h-6" /> Profile
-                    </a>
+                    </div>
                   </Link>
                   {user.role === "farmer" && (
                     <Link href="/farmer/dashboard">
-                      <a
-                        className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                      <div
+                        className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         <Tractor className="mr-3 w-6 h-6" /> Farmer Dashboard
-                      </a>
+                      </div>
                     </Link>
                   )}
                   <button
@@ -244,17 +244,17 @@ export function Header() {
                 </>
               ) : (
                 <Link href="/auth">
-                  <a
-                    className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                  <div
+                    className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="mr-3 w-6 h-6" /> Account
-                  </a>
+                  </div>
                 </Link>
               )}
               <Link href="/cart">
-                <a
-                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2"
+                <div
+                  className="text-neutral-700 hover:text-primary font-medium flex items-center py-2 cursor-pointer"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <ShoppingCart className="mr-3 w-6 h-6" /> Cart
@@ -263,7 +263,7 @@ export function Header() {
                       {cart.items.length}
                     </span>
                   )}
-                </a>
+                </div>
               </Link>
             </nav>
           </div>

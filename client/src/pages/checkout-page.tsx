@@ -200,11 +200,11 @@ export default function CheckoutPage() {
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-6">
         <Link href="/">
-          <a className="hover:text-primary">Home</a>
+          <span className="hover:text-primary cursor-pointer">Home</span>
         </Link>
         <span className="mx-2">›</span>
         <Link href="/cart">
-          <a className="hover:text-primary">Cart</a>
+          <span className="hover:text-primary cursor-pointer">Cart</span>
         </Link>
         <span className="mx-2">›</span>
         <span>Checkout</span>

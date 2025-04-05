@@ -74,11 +74,11 @@ export default function FarmerPage() {
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-6">
         <Link href="/">
-          <a className="hover:text-primary">Home</a>
+          <span className="hover:text-primary cursor-pointer">Home</span>
         </Link>
         <span className="mx-2">›</span>
         <Link href="/farmers">
-          <a className="hover:text-primary">Farmers</a>
+          <span className="hover:text-primary cursor-pointer">Farmers</span>
         </Link>
         <span className="mx-2">›</span>
         <span>{farmer.name}</span>
@@ -114,11 +114,9 @@ export default function FarmerPage() {
                 </Badge>
               </div>
             </div>
-            <Button asChild variant="outline" className="mt-4 md:mt-0">
-              <a href="#" className="flex items-center">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Visit Farm Website
-              </a>
+            <Button variant="outline" className="mt-4 md:mt-0 flex items-center" onClick={() => window.open("#", "_blank")}>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Visit Farm Website
             </Button>
           </div>
           

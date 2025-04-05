@@ -8,12 +8,12 @@ interface LogoProps {
 export function FarmFreshLogo({ className = "" }: LogoProps) {
   return (
     <Link href="/">
-      <a className={`flex items-center space-x-2 ${className}`}>
+      <div className={`flex items-center space-x-2 ${className} cursor-pointer`}>
         <FarmIcon className="h-8 w-8 text-primary" />
         <h1 className="text-2xl font-bold font-heading text-neutral-900">
           Farm<span className="text-primary">Fresh</span>
         </h1>
-      </a>
+      </div>
     </Link>
   );
 }
