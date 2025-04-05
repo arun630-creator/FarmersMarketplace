@@ -10,9 +10,9 @@ export default function NotFound() {
         The page you're looking for doesn't exist or has been moved.
       </p>
       <Link href="/">
-        <a className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+        <div className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors cursor-pointer">
           Go to Homepage
-        </a>
+        </div>
       </Link>
     </div>
   );

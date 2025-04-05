@@ -29,23 +29,23 @@ export function Header() {
     <header className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/">
-          <a className="text-xl font-bold text-green-600">FarmFresh</a>
+          <div className="text-xl font-bold text-green-600 cursor-pointer">FarmFresh</div>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <Link key={item.path} href={item.path}>
-              <a className={`text-sm ${location === item.path ? 'font-semibold text-green-600' : 'text-gray-600 hover:text-green-600'}`}>
+              <div className={`text-sm cursor-pointer ${location === item.path ? 'font-semibold text-green-600' : 'text-gray-600 hover:text-green-600'}`}>
                 {item.name}
-              </a>
+              </div>
             </Link>
           ))}
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
           <Link href="/cart">
-            <a className="relative text-gray-600 hover:text-green-600">
+            <div className="relative text-gray-600 hover:text-green-600 cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
@@ -54,15 +54,15 @@ export function Header() {
                   {itemCount}
                 </span>
               )}
-            </a>
+            </div>
           </Link>
 
           {user ? (
             <div className="flex items-center gap-4">
               <Link href="/profile">
-                <a className="text-sm text-gray-600 hover:text-green-600">
+                <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">
                   {user.name || user.username}
-                </a>
+                </div>
               </Link>
               <button 
                 onClick={logout}
@@ -73,9 +73,9 @@ export function Header() {
             </div>
           ) : (
             <Link href="/auth">
-              <a className="text-sm text-gray-600 hover:text-green-600">
+              <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">
                 Login / Register
-              </a>
+              </div>
             </Link>
           )}
         </div>
@@ -98,17 +98,17 @@ export function Header() {
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
-                  <a 
-                    className={`py-2 ${location === item.path ? 'font-semibold text-green-600' : 'text-gray-600'}`}
+                  <div 
+                    className={`py-2 cursor-pointer ${location === item.path ? 'font-semibold text-green-600' : 'text-gray-600'}`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
-                  </a>
+                  </div>
                 </Link>
               ))}
               <Link href="/cart">
-                <a 
-                  className="py-2 flex items-center justify-between text-gray-600"
+                <div 
+                  className="py-2 flex items-center justify-between text-gray-600 cursor-pointer"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Cart
@@ -117,17 +117,17 @@ export function Header() {
                       {itemCount}
                     </span>
                   )}
-                </a>
+                </div>
               </Link>
               {user ? (
                 <>
                   <Link href="/profile">
-                    <a 
-                      className="py-2 text-gray-600"
+                    <div 
+                      className="py-2 text-gray-600 cursor-pointer"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Profile
-                    </a>
+                    </div>
                   </Link>
                   <button 
                     onClick={() => {
@@ -141,12 +141,12 @@ export function Header() {
                 </>
               ) : (
                 <Link href="/auth">
-                  <a 
-                    className="py-2 text-gray-600"
+                  <div 
+                    className="py-2 text-gray-600 cursor-pointer"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login / Register
-                  </a>
+                  </div>
                 </Link>
               )}
             </nav>

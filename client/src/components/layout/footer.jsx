@@ -18,17 +18,17 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/">
-                  <a className="text-sm text-gray-600 hover:text-green-600">Home</a>
+                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Home</div>
                 </Link>
               </li>
               <li>
                 <Link href="/shop">
-                  <a className="text-sm text-gray-600 hover:text-green-600">Shop</a>
+                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Shop</div>
                 </Link>
               </li>
               <li>
                 <Link href="/farmers">
-                  <a className="text-sm text-gray-600 hover:text-green-600">Farmers</a>
+                  <div className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Farmers</div>
                 </Link>
               </li>
             </ul>
@@ -38,16 +38,16 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-gray-800 mb-4">Customer Service</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-green-600">Contact Us</a>
+                <div onClick={() => {}} className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Contact Us</div>
               </li>
               <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-green-600">FAQ</a>
+                <div onClick={() => {}} className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">FAQ</div>
               </li>
               <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-green-600">Shipping Policy</a>
+                <div onClick={() => {}} className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Shipping Policy</div>
               </li>
               <li>
-                <a href="#" className="text-sm text-gray-600 hover:text-green-600">Return Policy</a>
+                <div onClick={() => {}} className="text-sm text-gray-600 hover:text-green-600 cursor-pointer">Return Policy</div>
               </li>
             </ul>
           </div>
@@ -55,21 +55,21 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-gray-800 mb-4">Connect With Us</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-600 hover:text-green-600">
+              <div onClick={() => {}} className="text-gray-600 hover:text-green-600 cursor-pointer">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10zm-10 6.25a6.25 6.25 0 100-12.5 6.25 6.25 0 000 12.5zm0-9.375a3.125 3.125 0 100 6.25 3.125 3.125 0 000-6.25z" />
                 </svg>
-              </a>
-              <a href="#" className="text-gray-600 hover:text-green-600">
+              </div>
+              <div onClick={() => {}} className="text-gray-600 hover:text-green-600 cursor-pointer">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10zm-10 6.25a6.25 6.25 0 100-12.5 6.25 6.25 0 000 12.5zm0-9.375a3.125 3.125 0 100 6.25 3.125 3.125 0 000-6.25z" />
                 </svg>
-              </a>
-              <a href="#" className="text-gray-600 hover:text-green-600">
+              </div>
+              <div onClick={() => {}} className="text-gray-600 hover:text-green-600 cursor-pointer">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10zm-10 6.25a6.25 6.25 0 100-12.5 6.25 6.25 0 000 12.5zm0-9.375a3.125 3.125 0 100 6.25 3.125 3.125 0 000-6.25z" />
                 </svg>
-              </a>
+              </div>
             </div>
           </div>
         </div>

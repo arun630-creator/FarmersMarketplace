@@ -16,14 +16,14 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/shop">
-                <a className="px-6 py-3 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors">
+                <div className="px-6 py-3 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors cursor-pointer">
                   Shop Now
-                </a>
+                </div>
               </Link>
               <Link href="/farmers">
-                <a className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-md font-medium hover:bg-green-50 transition-colors">
+                <div className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-md font-medium hover:bg-green-50 transition-colors cursor-pointer">
                   Meet Our Farmers
-                </a>
+                </div>
               </Link>
             </div>
           </div>
@@ -80,9 +80,9 @@ export default function HomePage() {
             Join thousands of happy customers who enjoy fresh, locally-grown produce delivered right to their homes.
           </p>
           <Link href="/shop">
-            <a className="px-6 py-3 bg-white text-green-600 rounded-md font-medium hover:bg-gray-100 transition-colors inline-block">
+            <div className="px-6 py-3 bg-white text-green-600 rounded-md font-medium hover:bg-gray-100 transition-colors inline-block cursor-pointer">
               Browse Products
-            </a>
+            </div>
           </Link>
         </div>
       </section>
