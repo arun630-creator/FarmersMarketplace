@@ -70,7 +70,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-sm text-neutral-700 mb-3">{product.description}</p>
         <div className="flex justify-between items-center">
           <div>
-            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            <span className="text-lg font-bold">₹{product.price.toFixed(2)}</span>
             <span className="text-sm text-neutral-700 ml-1">/ {product.unit}</span>
           </div>
           <Button 

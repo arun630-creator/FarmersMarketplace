@@ -196,7 +196,7 @@ export default function ProductPage() {
 
           {/* Price */}
           <div className="text-2xl font-bold text-neutral-900 mb-4">
-            ${product.price.toFixed(2)}
+            ₹{product.price.toFixed(2)}
             <span className="text-base font-normal text-neutral-500 ml-1">/{product.unit}</span>
           </div>
 
@@ -287,7 +287,7 @@ export default function ProductPage() {
           <div className="space-y-3">
             <div className="flex items-center">
               <Truck size={18} className="mr-2 text-primary" />
-              <span className="text-sm">Free shipping for orders over $50</span>
+              <span className="text-sm">Free shipping for orders over ₹500</span>
             </div>
             <div className="flex items-center">
               <ShieldCheck size={18} className="mr-2 text-primary" />
@@ -397,8 +397,8 @@ export default function ProductPage() {
               
               <h4 className="text-lg font-bold mt-6 mb-2">Shipping Costs</h4>
               <ul>
-                <li>Orders under $50: $5.99 shipping fee</li>
-                <li>Orders over $50: FREE shipping</li>
+                <li>Orders under ₹500: ₹70 shipping fee</li>
+                <li>Orders over ₹500: FREE shipping</li>
               </ul>
               
               <h4 className="text-lg font-bold mt-6 mb-2">Returns & Refunds</h4>

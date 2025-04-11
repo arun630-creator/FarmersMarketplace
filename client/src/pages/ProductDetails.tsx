@@ -290,7 +290,7 @@ const ProductDetails = () => {
             <p className="text-lg mb-6">{product.description}</p>
             
             <div className="mb-6">
-              <div className="text-2xl font-bold">${product.price.toFixed(2)}<span className="text-sm text-neutral-700 font-normal"> / {product.unit}</span></div>
+              <div className="text-2xl font-bold">₹{product.price.toFixed(2)}<span className="text-sm text-neutral-700 font-normal"> / {product.unit}</span></div>
               
               {product.stock > 0 ? (
                 <div className="text-green-600 text-sm mt-1">In Stock ({product.stock} available)</div>

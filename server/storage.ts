@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+// import farmerImage1 from "./images/farmer1.png"
 
 const MemoryStore = createMemoryStore(session);
 
@@ -131,31 +132,31 @@ export class MemStorage implements IStorage {
   private async seedFarmers() {
     const farmers: InsertUser[] = [
       {
-        username: "sarahfarms",
+        username: "vermafarms",
         password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
-        email: "sarah@greenfarms.com",
-        name: "Sarah Green",
+        email: "verma@greenfarms.com",
+        name: "Ramsaran Verma",
         role: "farmer",
         bio: "Third-generation farmer specializing in organic vegetables. Our farm has been in the family for over 70 years, practicing sustainable agriculture.",
-        profileImage: "https://images.unsplash.com/photo-1607611439230-fcbf50e42f5c"
+        profileImage: "https://i.ibb.co/xq65sYVG/farmer2.png"
       },
       {
-        username: "johndairy",
+        username: "Rajivdairy",
         password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
-        email: "john@happycows.com",
-        name: "John Miller",
+        email: "rajiv@happycows.com",
+        name: "Rajiv Bittu",
         role: "farmer",
         bio: "Dairy farmer with a focus on ethical animal care. Our cows graze on open pastures and are treated like family, resulting in the highest quality milk products.",
-        profileImage: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e"
+        profileImage: "https://i.ibb.co/kgTpJsLs/farmer1.jpg"
       },
       {
         username: "mapleorchards",
         password: "$2b$10$RiU.R2lWc5tH.P1/ArWJ.ux.N5kQYz/I0X.Ih/cHcHZBEsyNmFkuS", // "farmerpw"
-        email: "emily@mapleorchards.com",
-        name: "Emily Johnson",
+        email: "subhash@mapleorchards.com",
+        name: "Subhash Palekar",
         role: "farmer",
         bio: "Fruit orchards maintained using integrated pest management. Our apples, peaches, and berries are grown with minimal intervention and maximum flavor.",
-        profileImage: "https://images.unsplash.com/photo-1596815064285-45ed8a9c0463"
+        profileImage: "https://i.ibb.co/xS1G74Gz/farmer3.png"
       }
     ];
   
@@ -169,7 +170,7 @@ export class MemStorage implements IStorage {
       {
         name: "Organic Carrots",
         description: "Sweet and crunchy organic carrots harvested fresh from our farm.",
-        price: 2.99,
+        price: 50,
         unit: "bunch",
         farmerId: 1,
         categoryId: 1,
@@ -181,7 +182,7 @@ export class MemStorage implements IStorage {
       {
         name: "Fresh Spinach",
         description: "Nutrient-rich dark leafy greens perfect for salads and cooking.",
-        price: 3.49,
+        price: 35,
         unit: "bag",
         farmerId: 1,
         categoryId: 1,
@@ -193,8 +194,8 @@ export class MemStorage implements IStorage {
       {
         name: "Heirloom Tomatoes",
         description: "Colorful variety of heritage tomatoes bursting with flavor.",
-        price: 4.99,
-        unit: "lb",
+        price: 40,
+        unit: "kg",
         farmerId: 1,
         categoryId: 1,
         image: "https://images.unsplash.com/photo-1582284540020-8acbe03f4924",
@@ -205,7 +206,7 @@ export class MemStorage implements IStorage {
       {
         name: "Artisanal Cheese",
         description: "Small-batch aged cheese made from our own grass-fed cows' milk.",
-        price: 6.99,
+        price: 70,
         unit: "piece",
         farmerId: 2,
         categoryId: 4,
@@ -217,8 +218,8 @@ export class MemStorage implements IStorage {
       {
         name: "Fresh Milk",
         description: "Creamy whole milk from pasture-raised cows, bottled on our farm.",
-        price: 4.49,
-        unit: "quart",
+        price: 60,
+        unit: "Litre",
         farmerId: 2,
         categoryId: 4,
         image: "https://images.unsplash.com/photo-1563636619-e9143da7973b",

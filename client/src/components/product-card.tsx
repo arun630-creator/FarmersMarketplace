@@ -78,7 +78,7 @@ export function ProductCard({ product, farmerName, farmerImage }: ProductCardPro
         <p className="text-neutral-700 text-sm mb-3 line-clamp-2">{product.description}</p>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-neutral-900">
-            ${product.price.toFixed(2)}
+            ₹{product.price.toFixed(2)}
             <span className="text-sm font-normal text-neutral-500">/{product.unit}</span>
           </span>
           <Button 
