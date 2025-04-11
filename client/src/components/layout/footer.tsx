@@ -8,6 +8,13 @@ import {
   Linkedin,
   CreditCard,
 } from "lucide-react";
+import { 
+  FaCcVisa, 
+  FaCcMastercard, 
+  FaCcPaypal, 
+  FaCcAmex, 
+  FaCcDiscover 
+} from 'react-icons/fa';
 
 export function Footer() {
   return (
@@ -209,12 +216,13 @@ export function Footer() {
             <p className="text-neutral-400 text-sm mb-4 md:mb-0">
               © {new Date().getFullYear()} FarmFresh. All rights reserved.
             </p>
-            <div className="flex space-x-4">
-              <CreditCard className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
-              <CreditCard className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
-              <CreditCard className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
-              <CreditCard className="h-6 opacity-70 hover:opacity-100 transition-opacity" />
-            </div>
+           <div className="flex space-x-4 mt-2">
+  <FaCcVisa className="text-3xl text-blue-600" />
+  <FaCcMastercard className="text-3xl text-red-500" />
+  <FaCcPaypal className="text-3xl text-blue-800" />
+  <FaCcAmex className="text-3xl text-blue-400" />
+  <FaCcDiscover className="text-3xl text-orange-500" />
+</div>
           </div>
         </div>
       </div>
